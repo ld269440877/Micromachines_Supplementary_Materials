@@ -1,0 +1,183 @@
+#lable_1
+units           metal 
+dimension       3 
+timestep        0.001
+atom_style      atomic 
+boundary        s    s    s 
+neighbor        2.0    bin 
+neigh_modify    delay    10 
+read_data       data.M1111S1919-1111-1111-1111-1111
+pair_style      hybrid         lj/cut 10.2 airebo 3.0 #10.2
+pair_coeff      *    *         airebo CH.airebo  C  C  C  C  C  C  C  C  C  C  H  H  H  H  H  H  H  H  H  H 
+#lable_2
+pair_coeff    1    2*10       lj/cut  0.002840     3.400
+pair_coeff    2    3*10       lj/cut  0.002840     3.400
+pair_coeff    3    4*10       lj/cut  0.002840     3.400
+pair_coeff    4    5*10       lj/cut  0.002840     3.400
+pair_coeff    5    6*10       lj/cut  0.002840     3.400
+pair_coeff    6    7*10       lj/cut  0.002840     3.400
+pair_coeff    7    8*10       lj/cut  0.002840     3.400
+pair_coeff    8    9*10       lj/cut  0.002840     3.400
+pair_coeff    9      10       lj/cut  0.002840     3.400
+pair_coeff    1   12*20       lj/cut  0.001376     3.025
+pair_coeff    2      11       lj/cut  0.001376     3.025
+pair_coeff    2   13*20       lj/cut  0.001376     3.025
+pair_coeff    3   11*12       lj/cut  0.001376     3.025
+pair_coeff    3   14*20       lj/cut  0.001376     3.025
+pair_coeff    4   11*13       lj/cut  0.001376     3.025
+pair_coeff    4   15*20       lj/cut  0.001376     3.025
+pair_coeff    5   11*14       lj/cut  0.001376     3.025
+pair_coeff    5   16*20       lj/cut  0.001376     3.025
+pair_coeff    6   11*15       lj/cut  0.001376     3.025
+pair_coeff    6   17*20       lj/cut  0.001376     3.025
+pair_coeff    7   11*16       lj/cut  0.001376     3.025
+pair_coeff    7   18*20       lj/cut  0.001376     3.025
+pair_coeff    8   11*17       lj/cut  0.001376     3.025
+pair_coeff    8   19*20       lj/cut  0.001376     3.025
+pair_coeff    9   11*18       lj/cut  0.001376     3.025
+pair_coeff    9      20       lj/cut  0.001376     3.025
+pair_coeff   10   11*19       lj/cut  0.001376     3.025
+pair_coeff   11   12*20       lj/cut  0.001500     2.650
+pair_coeff   12   13*20       lj/cut  0.001500     2.650
+pair_coeff   13   14*20       lj/cut  0.001500     2.650
+pair_coeff   14   15*20       lj/cut  0.001500     2.650
+pair_coeff   15   16*20       lj/cut  0.001500     2.650
+pair_coeff   16   17*20       lj/cut  0.001500     2.650
+pair_coeff   17   18*20       lj/cut  0.001500     2.650
+pair_coeff   18   19*20       lj/cut  0.001500     2.650
+pair_coeff   19      20       lj/cut  0.001500     2.650
+#lable_3
+region        motor_L    block   -10.550    10.550   -10.550    10.550     0.000     5.117
+region       rotor1_L    block    -7.460     7.460    -7.460     7.460    34.700    39.817
+region       rotor1_R    block    -7.460     7.460    -7.460     7.460   109.403   114.520
+region       rotor2_L    block    -7.460     7.460    -7.460     7.460   118.520   123.637
+region       rotor2_R    block    -7.460     7.460    -7.460     7.460   193.223   198.340
+region       rotor3_L    block    -7.460     7.460    -7.460     7.460   202.340   207.457
+region       rotor3_R    block    -7.460     7.460    -7.460     7.460   277.043   282.160
+#lable_4
+group       motor                   type     1
+group       rotor1                  type     2
+group       rotor2                  type     3
+group       rotor3                  type     4
+group       stator1                 type     5
+group       stator2                 type     6
+group       stator3                 type     7
+group       stator4                 type     8
+group       stator5                 type     9
+group       stator6                 type    10
+group       motor_hydrogen          type    11
+#lable_5
+group       motor_Left           region         motor_L
+group       rotor1_Left            region         rotor1_L
+#group       rotor1_Right           region         rotor1_R
+group       rotor2_Left            region         rotor2_L
+#group       rotor2_Right           region         rotor2_R
+group       rotor3_Left            region         rotor3_L
+#group       rotor3_Right           region         rotor3_R
+group       M_H                    union          motor     motor_hydrogen
+group       all_subtract_M_H       subtract       all       M_H
+#group       all_subtract_M         subtract       all       Motor
+group       stators1               union         stator1 stator2 
+group       stators2               union         stator3 stator4 
+group       stators3               union         stator5 stator6 
+group       except_rotor1          union         motor   stators1 rotor2 stator3 
+group       except_rotor2          union         rotor1  stator2   stators2 rotor3 stator5 
+group       except_rotor3          union         rotor2 stator4 stators3 
+fix       spring_ML            motor_Left         spring/self 1000    xyz
+dump      dump_minimize         all                xtc         200     dump_minimize.xtc
+minimize 1.0e-12 1.0e-12 10000 100000
+#minimize 1.0e-4 1.0e-6 10000 100000
+#min_modify dmax 0.1
+undump   dump_minimize
+fix       spring_ML            motor_Left         spring/self 1000    xyz
+fix       spring_R1L           rotor1_Left        spring/self 1000    xyz
+#fix       spring_R1R           rotor1_Right       spring/self 1000    xyz
+fix       spring_R2L           rotor2_Left        spring/self 1000    xyz
+#fix       spring_R2R           rotor2_Right       spring/self 1000    xyz
+fix       spring_R3L           rotor3_Left        spring/self 1000    xyz
+#fix       spring_R3R           rotor3_Right       spring/self 1000    xyz
+fix       spring_stator1       stator1            spring/self 1000    xyz
+fix       spring_stator2       stator2            spring/self 1000    xyz
+fix       spring_stator3       stator3            spring/self 1000    xyz
+fix       spring_stator4       stator4            spring/self 1000    xyz
+fix       spring_stator5       stator5            spring/self 1000    xyz
+fix       spring_stator6       stator6            spring/self 1000    xyz
+fix       NVE                  all                nve 
+fix       NVE_TEMP             all                temp/rescale    200             300 300  1.0 1.0 
+#thermo_style custom step  temp    etotal 
+#thermo 200 
+dump      dump_NveTemp         all                xtc         200     dump_NveTemp.xtc
+run       200000               # 02million
+#run      100000               # 01million
+#run      10000                # 10thousand
+#run      1000                  #1hundred
+unfix    NVE
+unfix    NVE_TEMP
+undump   dump_NveTemp
+unfix spring_ML
+unfix spring_R1L
+#unfix spring_R1R
+unfix spring_R2L
+#unfix spring_R2R
+unfix spring_R3L
+#unfix spring_R3R
+#lable_6
+fix   spring_ML_z motor_Left       spring/self     1000            z
+#fix   M_H_temp    M_H                temp/rescale   200             300 300  1.0 1.0
+#fix   NVT         all_subtract_M_H   nvt            temp            300. 300. 0.1
+fix   NVT         all                 nvt            temp            300. 300. 0.1  #tchain 1 #drag 0.5
+fix   rotate      M_H                 move rotate   0.0 0.0 0.0     0.0 0.0 1.0     5 
+#compute      cc1          all     chunk/atom       type
+#compute      torque       all     torque/chunk     cc1
+#fix          torque_1     all     ave/time         1 200 200     c_torque[*]      file  M1111S1919-1111-1111-1111-1111_torque.vector    mode vector
+compute      cc2          all     chunk/atom       type
+compute      mass_center  all     com/chunk        cc2
+fix          center_2     all     ave/time         1 200 200     c_mass_center[*]  file   M1111S1919-1111-1111-1111-1111_mcenter.vector   mode vector
+compute      cc3          all     chunk/atom       type
+compute      omiga        all     omega/chunk      cc3
+fix          omiga_3      all     ave/time         1 200 200     c_omiga[*]        file   M1111S1919-1111-1111-1111-1111_omiga.vector    mode vector
+#compute      crs1  rotor1   group/group stators1
+#compute      crs2  rotor2   group/group stators2
+#compute      crs3  rotor3   group/group stators3
+#fix  crs1_scalar  stators1  ave/time  1 200 200 c_crs1 file crs1.scalar
+#fix  crs2_scalar  stators2  ave/time  1 200 200 c_crs2 file crs2.scalar
+#fix  crs3_scalar  stators3  ave/time  1 200 200 c_crs3 file crs3.scalar
+#compute      cmr1               rotor1   group/group motor
+#compute      cr1r2              rotor2   group/group rotor1
+#compute      cr2r3              rotor3   group/group rotor2
+#fix          cmr1_scalar        rotor1   ave/time  1 200 200 c_cmr1  file cmr1.scalar
+#fix          cr1r2_scalar       rotor2   ave/time  1 200 200 c_cr1r2 file cr1r2.scalar
+#fix          cr2r3_scalar       rotor3   ave/time  1 200 200 c_cr2r3 file cr2r3.scalar
+#compute      cer1  rotor1   group/group except_rotor1
+#compute      cer2  rotor2   group/group except_rotor2
+#compute      cer3  rotor3   group/group except_rotor3
+#fix  cer1_scalar  except_rotor1  ave/time  1 200 200 c_cer1 file cer1.scalar
+#fix  cer2_scalar  except_rotor2  ave/time  1 200 200 c_cer2 file cer2.scalar
+#fix  cer3_scalar  except_rotor3  ave/time  1 200 200 c_cer3 file cer3.scalar
+#thermo_style custom step  temp    etotal 
+#thermo 200
+#dump        1          all             custom   200    M1111S1919-1111-1111-1111-1111.lammpstrj  type x y z fx fy fz
+#dump        2          all             xtc      4000   dump_per4000_2million.xtc
+#dump        3          all             xtc      1000   dump_per1000_2million.xtc
+#dump        4          all             xtc      500   dump_per500_2million.xtc
+dump        5          all             xtc      200    dump_per200_2million.xtc 
+#dump        6          all             xyz      200    dump_M1111S1919-1111-1111-1111-1111.xyz
+
+#dump_modify 1          element         C  C  C  C  C  C  C  C  C  C  H  H  H  H  H  H  H  H  H  H sort id
+
+#restart     50000M1111S1919-1111-1111-1111-1111.restart
+#run         100000
+
+
+#restart     100000M1111S1919-1111-1111-1111-1111.restart
+#run         200000
+
+run        20000200   #20million
+#run        100000     #01million
+#run        10000      #10thousand
+#run         1000
+uncompute   cc2
+uncompute   mass_center
+uncompute   cc3
+uncompute   omiga
+undump        5
